@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <h5>Add New Action Item</h5>
+            </div>
+            <div class="card-body">
+                <form action="." method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-12 mb-2">
+                            {{ form.product_name|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            {{ form.minimum_bid_price|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            {{ form.product_photo|as_crispy_field }}
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            {{ form.end_date|as_crispy_field }}
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            {{ form.product_description|as_crispy_field }}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 mt-4">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}

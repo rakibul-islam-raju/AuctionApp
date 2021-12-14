@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # third-party apps
     "crispy_forms",
+    "crispy_bootstrap5",
     # local apps
     "core.apps.CoreConfig",
 ]
@@ -138,7 +139,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # crispy forms
 CRISPY_TEMPLATE_PACK = "bootstrap4"
-CRISPY_FAIL_SILENTLY = False
+
 # django messages
 MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
 MESSAGE_TAGS = {
@@ -148,3 +149,6 @@ MESSAGE_TAGS = {
     messages.WARNING: "alert-warning",
     messages.ERROR: "alert-danger",
 }
+
+LOGIN_URL = "login"
+LOGOUT_REDIRECT_URL = "login"

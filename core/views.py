@@ -4,8 +4,8 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 
-from .forms import UserLoginForm
-from .models import User
+from .forms import UserLoginForm, CreateAutionItemForm
+from .models import User, AuctionProduct
 
 
 def login_page(request):
@@ -42,13 +42,38 @@ def login_page(request):
             print("error======", form.errors)
             messages.error(request, "Invalid form data")
             return redirect("home")
+    else:
+        form = UserLoginForm()
 
     context = {
-        "form": UserLoginForm(),
+        "form": form,
     }
     return render(request, "login.html", context)
 
 
-@login_required(login_url="login")
+@login_required()
 def home_page(request):
-    return render(request, "home.html")
+    products = AuctionProduct.objects.filter(is_active=True)
+    context = {
+        "products": products,
+    }
+    return render(request, "home.html", context)
+
+
+@login_required()
+def create_auction_item_page(request):
+    if request.method == "POST":
+        form = CreateAutionItemForm(request.POST, request.FILES or None)
+        if form.is_valid():
+            new_item = form.save(commit=False)
+            new_item.added_by = request.user
+            new_item.save()
+            messages.success(request, "Item successfully added.")
+            return redirect("home")
+    else:
+        form = CreateAutionItemForm()
+
+    context = {
+        "form": form,
+    }
+    return render(request, "create_action_item.html", context)
