@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-6">
+        <img class="img-thumbnail" src="{{ product.product_photo.url }}" alt="{{ product.product_name }}">
+    </div>
+    <div class="col-md-6">
+        <h4>{{ product.product_name|title }}</h4>
+        <ul class="list-group">
+            <li class="list-group-item text-secondary"><strong class="me-2">Min Bid Price:</strong> {{ product.minimum_bid_price }}</li>
+            <li class="list-group-item text-secondary"><strong class="me-2">End Date:</strong> {{ product.end_date }}</li>
+        </ul>
+        <p class="mt-3">{{ product.product_description }}</p>
+
+        {% if expired %}
+        <div class="alert alert-danger" role="alert">
+          This auction has expired!
+        </div>
+        {% endif %}
+        <h4>Bid Now:</h4>
+        
+        <form action="." method="POST">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col">
+              <div class="mb-2">
+                <input {% if expired %}disabled{% endif %} value="{% if user_bid %}{{ user_bid.bid_price }}{% endif %}" type="number" step="0.01" id="id_bid_price" name="bid_price" class="form-control" required>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-success w-100" {% if expired %}disabled{% endif %}>
+                {% if user_bid %}Update Bid {% else %} Bid {% endif %}
+              </button>
+            </div>
+          </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <h4>Biding Table</h4>
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Bid</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for bid in product_bids %}
+                  <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{bid.user}}</td>
+                    <td>{{bid.bid_price}}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+        </div>
+    </div>
+</div>
+{% endblock body %}

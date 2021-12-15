@@ -17,13 +17,7 @@
                     <li class="list-group-item text-secondary">Min Bid: {{ product.minimum_bid_price }}</li>
                     <li class="list-group-item text-secondary">End Date: {{ product.end_date }}</li>
                 </ul>
-                <div class="d-flex justify-content-center">
-                    {% if product.added_by == request.user %}
-                    <a href="{{product.get_absolute_url}}" class="btn btn-outline-secondary btn-sm stretched-link">View</a>            </div>
-                    {% else %}
-                    <a href="{{product.get_absolute_url}}" class="btn btn-outline-success btn-sm stretched-link">Bid Product</a>            </div>
-                    {% endif %}
-                </div>
+            </div>
         </div>
     </div>
     {% endfor %}

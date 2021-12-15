@@ -1,3 +1,4 @@
+from datetime import date
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -5,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 
 from .forms import UserLoginForm, CreateAutionItemForm
-from .models import User, AuctionProduct
+from .models import ProductBid, User, AuctionProduct
 
 
 def login_page(request):
@@ -77,3 +78,67 @@ def create_auction_item_page(request):
         "form": form,
     }
     return render(request, "create_action_item.html", context)
+
+
+@login_required()
+def posted_items_page(request):
+    # if user has not items then redirect to create page.
+    if request.user.auction_products.count() < 1:
+        messages.info(request, "You don't have any items yet. Please create one.")
+        return redirect("create_auction_item")
+    # get all the items
+    items = AuctionProduct.objects.filter(added_by=request.user)
+    context = {
+        "products": items,
+    }
+    return render(request, "home.html", context)
+
+
+@login_required()
+def product_details_page(request, pk):
+    context = {}
+    # get the product
+    product = get_object_or_404(AuctionProduct, pk=pk)
+    # check if auction end date is not expired
+    expired = False
+    if product.end_date >= date.today():
+        expired = False
+    else:
+        expired = True
+
+    if request.method == "POST":
+        # if this auction not expired
+        if not expired:
+            # get bid price
+            bid_price = request.POST.get("bid_price")
+            if bid_price:
+                # check if this user bid for this product or create new bid
+                obj, created = ProductBid.objects.get_or_create(
+                    user=request.user,
+                    product=product,
+                    defaults={"bid_price": bid_price},
+                )
+                if created:
+                    # create new bid
+                    messages.success(request, "Your bid was placed successfully.")
+                else:
+                    # update bid price if used bid was existed
+                    obj.bid_price = bid_price
+                    obj.save()
+                    messages.success(request, "Your bid was updated successfully.")
+            else:
+                messages.error(request, "Invalid request.")
+        else:
+            messages.error(request, "This auction has been expired.")
+
+        return redirect("./")
+    else:
+        product_bids = ProductBid.objects.filter(product=product)
+        user_bid = product_bids.filter(user=request.user).first()
+        context = {
+            "product": product,
+            "product_bids": product_bids,
+            "user_bid": user_bid,
+            "expired": expired,
+        }
+    return render(request, "product_details.html", context)
