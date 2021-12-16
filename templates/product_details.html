@@ -56,6 +56,11 @@
                     <th scope="row">{{forloop.counter}}</th>
                     <td>{{bid.user}}</td>
                     <td>{{bid.bid_price}}</td>
+                    <td>
+                      {% if bid.bid_price == winner.bid_price__max %}
+                      <div class="badge bg-success">Winner</div>
+                      {% endif %}
+                    </td>
                   </tr>
                   {% endfor %}
                 </tbody>

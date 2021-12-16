@@ -1,4 +1,5 @@
 from datetime import date
+from django.db.models import Max
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -96,7 +97,6 @@ def posted_items_page(request):
 
 @login_required()
 def product_details_page(request, pk):
-    context = {}
     # get the product
     product = get_object_or_404(AuctionProduct, pk=pk)
     # check if auction end date is not expired
@@ -134,10 +134,12 @@ def product_details_page(request, pk):
         return redirect("./")
     else:
         product_bids = ProductBid.objects.filter(product=product)
+        winner = product_bids.aggregate(Max("bid_price"))
         user_bid = product_bids.filter(user=request.user).first()
         context = {
             "product": product,
             "product_bids": product_bids,
+            "winner": winner,
             "user_bid": user_bid,
             "expired": expired,
         }
