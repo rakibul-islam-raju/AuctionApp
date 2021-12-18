@@ -1,0 +1,51 @@
+{% extends "admin/dashboard.html" %}
+{% load static %}
+
+{% block extra_heades %}
+<link rel="stylesheet" href="{% static 'css/admin__auctions.css' %}">
+{% endblock extra_heades %}
+
+{% block body %}
+<h2 class="mt-3">All Auctions</h2>
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Product</th>
+              <th scope="col">Min Bid</th>
+              <th scope="col">Max Bid</th>
+              <th scope="col">End Date</th>
+              <th scope="col">Total Bid</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          
+          <tbody>
+            {% for auction in auctions %}
+            <tr>
+              <td>
+                <img class="img-thumbnail table__img" src="{{ auction.product_photo.url }}" alt="{{ auction.product_name }}">
+              </td>
+              <td>{{ auction.product_name }}</td>
+              <td>{{ auction.minimum_bid_price }}</td>
+              <td>{{ auction.get_top_bid.bid_price__max }}</td>
+              <td>
+                {% now "Y-m-d" as todays_date %}
+                {% if auction.end_date|date:"Y-m-d" <= todays_date %}
+                <span class="badge bg-danger">Expired</span>
+                <br />
+                {% endif %}
+                {{ auction.end_date }}
+              </td>
+              <td>{{ auction.product_bid.all.count }}</td>
+              <td>
+                <a href="{% url 'auction_details' auction.pk %}" class="btn btn-secondary btn-sm">View</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+{% endblock body %}

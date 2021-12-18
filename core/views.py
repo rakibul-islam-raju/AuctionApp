@@ -1,4 +1,3 @@
-from datetime import date
 from django.db.models import Max
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
@@ -8,6 +7,8 @@ from django.contrib.auth.hashers import make_password
 
 from .forms import UserLoginForm, CreateAutionItemForm
 from .models import ProductBid, User, AuctionProduct
+from .decorators import staff_required
+from .utils import get_auction_expired_or_not
 
 
 def login_page(request):
@@ -99,13 +100,8 @@ def posted_items_page(request):
 def product_details_page(request, pk):
     # get the product
     product = get_object_or_404(AuctionProduct, pk=pk)
-    # check if auction end date is not expired
-    expired = False
-    if product.end_date >= date.today():
-        expired = False
-    else:
-        expired = True
-
+    # check if aution not expired
+    expired = get_auction_expired_or_not(product.end_date)
     if request.method == "POST":
         # if this auction not expired
         if not expired:
@@ -144,3 +140,41 @@ def product_details_page(request, pk):
             "expired": expired,
         }
     return render(request, "product_details.html", context)
+
+
+"""
+=======================
+Admin views starts here
+=======================
+"""
+
+
+@staff_required()
+def dashboard(request):
+    return render(request, "admin/statistics.html")
+
+
+@staff_required()
+def auctions(request):
+    auctions = AuctionProduct.objects.all().order_by("-created_at")
+    context = {
+        "auctions": auctions,
+    }
+    return render(request, "admin/auctions.html", context)
+
+
+@staff_required()
+def auction_details(request, pk):
+    product = get_object_or_404(AuctionProduct, pk=pk)
+    product_bids = ProductBid.objects.filter(product=product)
+    winner = product_bids.aggregate(Max("bid_price"))
+    user_bid = product_bids.filter(user=request.user).first()
+    expired = get_auction_expired_or_not(product.end_date)
+    context = {
+        "product": product,
+        "product_bids": product_bids,
+        "winner": winner,
+        "user_bid": user_bid,
+        "expired": expired,
+    }
+    return render(request, "admin/auction_details.html", context)

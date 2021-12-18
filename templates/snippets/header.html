@@ -17,6 +17,9 @@
               {% if request.user.auction_products.count > 0 %}
               <li><a class="dropdown-item" href="{% url 'my_items' %}">My Posted Items</a></li>
               {% endif %}
+              {% if request.user.is_staff %}
+              <li><a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a></li>
+              {% endif %}
             </ul>
           </li>
           {% else %}

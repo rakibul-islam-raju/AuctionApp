@@ -1,6 +1,7 @@
 from django.urls import reverse
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Max
 
 
 class User(AbstractUser):
@@ -25,6 +26,12 @@ class AuctionProduct(models.Model):
 
     def get_absolute_url(self):
         return reverse("product_details", kwargs={"pk": self.pk})
+
+    @property
+    def get_top_bid(self):
+        result = ProductBid.objects.filter(product=self)
+        result = result.aggregate(Max("bid_price"))
+        return result
 
     class Meta:
         ordering = ["-created_at"]

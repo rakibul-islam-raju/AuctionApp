@@ -3,6 +3,9 @@ from django.urls import path
 from django.contrib.auth.views import LogoutView
 
 from .views import (
+    auction_details,
+    auctions,
+    dashboard,
     home_page,
     login_page,
     create_auction_item_page,
@@ -17,4 +20,8 @@ urlpatterns = [
     path("new-auction-item/", create_auction_item_page, name="create_auction_item"),
     path("my-items/", posted_items_page, name="my_items"),
     path("product/<int:pk>/", product_details_page, name="product_details"),
+    # dashboard
+    path("dashboard", dashboard, name="dashboard"),
+    path("dashboard/auctions", auctions, name="auctions"),
+    path("dashboard/auctions/<int:pk>/", auction_details, name="auction_details"),
 ]
