@@ -48,7 +48,6 @@ def login_page(request):
             else:
                 messages.error(request, "Invalid Credentials.")
         else:
-            print("error======", form.errors)
             messages.error(request, "Invalid form data")
             return redirect("home")
     else:
