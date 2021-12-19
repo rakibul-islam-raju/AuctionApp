@@ -1,7 +1,13 @@
-from django.db.models import Max
+import json
+from django.core import serializers
+from datetime import datetime
+from django.db.models.aggregates import Count
+from django.urls import reverse
+from django.db.models import Max, fields
+from django.db.models.functions import TruncDay
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 
@@ -83,6 +89,31 @@ def create_auction_item_page(request):
 
 
 @login_required()
+def update_auction_item_page(request, pk):
+    auction = get_object_or_404(AuctionProduct, pk=pk)
+    # check if requested user is ther owner of this auction
+    if auction.added_by == request.user:
+        if request.method == "POST":
+            form = CreateAutionItemForm(
+                request.POST, request.FILES or None, instance=auction
+            )
+            if form.is_valid():
+                new_item = form.save()
+                new_item.save()
+                messages.success(request, "Item updated added.")
+                return redirect(reverse("product_details", kwargs={"pk": auction.pk}))
+        else:
+            form = CreateAutionItemForm(instance=auction)
+    else:
+        return redirect("home")
+
+    context = {
+        "form": form,
+    }
+    return render(request, "create_action_item.html", context)
+
+
+@login_required()
 def posted_items_page(request):
     # if user has not items then redirect to create page.
     if request.user.auction_products.count() < 1:
@@ -151,7 +182,36 @@ Admin views starts here
 
 @staff_required()
 def dashboard(request):
-    return render(request, "admin/statistics.html")
+    today = datetime.today()
+    auctions = AuctionProduct.objects.all()
+    total_running_auction = auctions.filter(end_date__gte=today)
+    finished_auction = auctions.filter(end_date__lt=today)
+    # calculate total running auction value
+    running_auction_value = 0
+    for i in total_running_auction:
+        running_auction_value += i.get_top_bid
+
+    # calculate total finished auction value
+    finished_auction_value = 0
+    for i in finished_auction:
+        finished_auction_value += i.get_top_bid
+
+    # count auction by created_at
+    auction_data = list(
+        auctions.annotate(date=TruncDay("created_at"))
+        .values("date")
+        .annotate(created_count=Count("id"))
+        .order_by("-date")
+    )
+
+    context = {
+        "total_running_auction": total_running_auction.count(),
+        "finished_auction": finished_auction.count(),
+        "running_auction_value": running_auction_value,
+        "finished_auction_value": finished_auction_value,
+        "auctions": auction_data,
+    }
+    return render(request, "admin/statistics.html", context)
 
 
 @staff_required()

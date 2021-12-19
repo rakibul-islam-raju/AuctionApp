@@ -29,8 +29,8 @@ class AuctionProduct(models.Model):
 
     @property
     def get_top_bid(self):
-        result = ProductBid.objects.filter(product=self)
-        result = result.aggregate(Max("bid_price"))
+        result = ProductBid.objects.filter(product=self).aggregate(Max("bid_price"))
+        result = result.get("bid_price__max") or 0
         return result
 
     class Meta:

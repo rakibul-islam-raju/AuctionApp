@@ -29,10 +29,10 @@
               </td>
               <td>{{ auction.product_name }}</td>
               <td>{{ auction.minimum_bid_price }}</td>
-              <td>{{ auction.get_top_bid.bid_price__max }}</td>
+              <td>{{ auction.get_top_bid }}</td>
               <td>
                 {% now "Y-m-d" as todays_date %}
-                {% if auction.end_date|date:"Y-m-d" <= todays_date %}
+                {% if auction.end_date|date:"Y-m-d" < todays_date %}
                 <span class="badge bg-danger">Expired</span>
                 <br />
                 {% endif %}

@@ -1,4 +1,5 @@
 {% extends "admin/dashboard.html" %}
+{% load static %}
 
 {% block body %}
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -15,5 +16,35 @@
     </div>
   </div>
 
-  <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+  <div class="row justify-content-around">
+    <div class="col-md-4 mb-2">
+      <div class="card bg-success text-white shadow text-center">
+        <div class="card-body">
+          <h2>{{ total_running_auction }}</h2>
+          <span>value: {{running_auction_value}}</span>
+        </div>
+        <div class="card-footer">Running Auctions</div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-2">
+      <div class="card bg-danger text-white shadow text-center">
+        <div class="card-body">
+          <h2>{{ finished_auction }}</h2>
+          <span>value: {{finished_auction_value}}</span>
+        </div>
+        <div class="card-footer">Auction Finished</div>
+      </div>
+    </div>
+  </div>
+
+  
+  <canvas class="my-4 w-100 mt-5" id="myChart" width="900" height="350"></canvas>
+  <h4 class="text-center">Time series of auction added and completed</h4>
+
+  {{auctions|json_script:'auctions'}}
+  <script type="text/javascript">
+    {% comment %} var auctions = JSON.parse('{{ auctions }}') {% endcomment %}
+    {% comment %} var auctions = JSON.parse(""); {% endcomment %}
+    console.log('auctions', auctions)
+  </script>
 {% endblock body %}

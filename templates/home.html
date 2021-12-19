@@ -19,7 +19,7 @@
                 </ul>
                 <div class="d-flex justify-content-center">
                     {% now "Y-m-d" as todays_date %}
-                    {% if product.end_date|date:"Y-m-d" <= todays_date %}
+                    {% if product.end_date|date:"Y-m-d" < todays_date %}
                     <a href="{{product.get_absolute_url}}" class="btn btn-danger btn-sm stretched-link">Expired</a>            </div>
                     {% elif product.added_by == request.user %}
                     <a href="{{product.get_absolute_url}}" class="btn btn-outline-secondary btn-sm stretched-link">View</a>            </div>
